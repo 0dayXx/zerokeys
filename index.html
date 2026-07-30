@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZEROKeys - Official Steam Games</title>
+
+  <!-- High-Performance Font Loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Rajdhani:wght@500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ========================================================================
+       1. GLOBAL ARCHITECTURE & SYSTEM TOKENS
+       ======================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-main: #020205;
+      --bg-surface: #07070f;
+      --bg-glass: rgba(13, 13, 22, 0.65);
+      --bg-glass-hover: rgba(22, 22, 38, 0.85);
+      --border-luxe: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(191, 85, 236, 0.5);
+      
+      --accent-amethyst: #9d4edd;
+      --accent-orchid: #bf55ec;
+      --accent-gold: #ffb703;
+      --accent-mint: #00f5d4;
+      --accent-dark: #120924;
+
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-dim: #4b5563;
+
+      --font-display: 'Rajdhani', sans-serif;
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Space Mono', monospace;
+
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 32px;
+
+      --shadow-luxe: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      --shadow-glow: 0 0 40px rgba(157, 78, 221, 0.2);
+      --ease-luxe: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-main);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-sm);
+      border: 3px solid var(--bg-main);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-amethyst);
+    }
+
+    .spatial-glow {
+      position: fixed;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+      filter: blur(150px);
+      will-change: transform;
+    }
+    .glow-1 { top: -20vh; right: -10vw; background: var(--accent-amethyst); }
+    .glow-2 { bottom: -20vh; left: -10vw; background: var(--accent-mint); }
+
+    .grid-matrix {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 5%;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #ffffff 20%, var(--accent-orchid) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ========================================================================
+       2. INTERACTIVE UI ARCHITECTURE COMPONENTS
+       ======================================================================== */
+    .btn-luxe {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 14px 32px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.4s var(--ease-luxe);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-amethyst), var(--accent-orchid));
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(157, 78, 221, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--accent-orchid), var(--accent-amethyst));
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(191, 85, 236, 0.6);
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: var(--border-luxe);
+      color: var(--text-main);
+      backdrop-filter: blur(10px);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-sm {
+      padding: 10px 24px;
+      font-size: 0.8rem;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(2, 2, 5, 0.3);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-luxe);
+      transition: all 0.4s var(--ease-luxe);
+    }
+    .navbar.scrolled {
+      background: rgba(2, 2, 5, 0.85);
+      padding: 6px 0;
+      border-bottom-color: rgba(157, 78, 221, 0.25);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 84px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.05em;
+    }
+    .logo span { color: var(--accent-orchid); }
+
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+      transition: all 0.4s var(--ease-luxe);
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      transition: color 0.3s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--accent-orchid);
+      transition: width 0.3s var(--ease-luxe);
+    }
+    .nav-links a:hover {
+      color: #fff;
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cart-trigger {
+      position: relative;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 8px;
+      transition: color 0.3s;
+    }
+    .cart-trigger:hover {
+      color: #fff;
+    }
+    .cart-count {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      background: var(--accent-orchid);
+      color: #fff;
+      font-size: 0.65rem;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 0 10px var(--accent-orchid);
+    }
+
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 101;
+    }
+    .menu-toggle span {
+      display: block;
+      width: 28px;
+      height: 2px;
+      background: #fff;
+      transition: all 0.3s var(--ease-luxe);
+      border-radius: 2px;
+    }
+
+    /* ========================================================================
+       3. HERO MARKETING SYSTEM
+       ======================================================================== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding-top: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .badge-promo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent-dark);
+      border: 1px solid rgba(157, 78, 221, 0.3);
+      color: var(--accent-orchid);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      padding: 8px 20px;
+      border-radius: 30px;
+      margin-bottom: 32px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(157, 78, 221, 0.1);
+    }
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-mint);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-mint);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 245, 212, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(0, 245, 212, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 245, 212, 0); }
+    }
+
+    .hero-title {
+      font-size: clamp(3rem, 5vw, 4.5rem);
+      margin-bottom: 24px;
+      line-height: 1.2;
+    }
+
+    .trust-index {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border-top: 1px solid var(--border-luxe);
+      padding-top: 32px;
+    }
+    .stars { color: var(--accent-gold); letter-spacing: 4px; font-size: 1.2rem; }
+    .trust-text { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+    .showcase-display {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 600px;
+      perspective: 1000px;
+    }
+    .showcase-blur-ring {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--accent-amethyst) 0%, transparent 70%);
+      filter: blur(80px);
+      opacity: 0.3;
+      z-index: 1;
+    }
+    .card-stack {
+      position: absolute;
+      width: 300px;
+      height: 420px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-luxe);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-luxe);
+      transition: transform 0.6s var(--ease-luxe), box-shadow 0.6s var(--ease-luxe);
+      z-index: 2;
+    }
+    .card-stack img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s var(--ease-luxe);
+    }
+    .card-stack:hover img { transform: scale(1.08); }
+
+    .card-stack-1 { transform: rotate(-10deg) translateX(-80px) translateY(20px) translateZ(-50px); opacity: 0.8; }
+    .card-stack-2 { transform: rotate(10deg) translateX(80px) translateY(30px) translateZ(-50px); opacity: 0.8; }
+    .card-stack-3 { transform: rotate(0deg) translateZ(50px); border-color: var(--border-active); box-shadow: var(--shadow-glow), var(--shadow-luxe); z-index: 3; }
+
+    .showcase-display:hover .card-stack-1 { transform: rotate(-15deg) translateX(-120px) translateY(0px) translateZ(-80px); opacity: 0.6; }
+    .showcase-display:hover .card-stack-2 { transform: rotate(15deg) translateX(120px) translateY(40px) translateZ(-80px); opacity: 0.6; }
+    .showcase-display:hover .card-stack-3 { transform: translateY(-30px) translateZ(80px); box-shadow: 0 30px 60px rgba(157, 78, 221, 0.4); }
+
+    /* ========================================================================
+       4. LUXURY BENTO STATISTICS SECTION
+       ======================================================================== */
+    .bento-stats { padding: 80px 0; position: relative; z-index: 5; }
+    .bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+    .bento-cell {
+      background: var(--bg-glass); border: 1px solid var(--border-luxe); backdrop-filter: blur(12px);
+      padding: 40px 32px; border-radius: var(--radius-xl); transition: all 0.4s var(--ease-luxe); text-align: center;
+    }
+    .bento-cell:hover { border-color: var(--border-active); background: var(--bg-glass-hover); transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); }
+    .cell-val { font-family: var(--font-display); font-size: 3.5rem; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, #fff, var(--accent-amethyst)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .cell-val.gold { background: linear-gradient(135deg, #fff, var(--accent-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .cell-lbl { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.15em; color: var(--text-muted); }
+
+    /* ========================================================================
+       5. GAMES VAULT ARCHITECTURE
+       ======================================================================== */
+    .vault-section { padding: 120px 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 60px; flex-wrap: wrap; gap: 32px; }
+    .section-title { font-size: 3rem; margin-bottom: 12px; }
+    .section-subtitle { color: var(--text-muted); font-size: 1.1rem; max-width: 500px; }
+
+    .vault-controls { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+    .search-input { background: rgba(13, 13, 22, 0.8); border: 1px solid var(--border-luxe); padding: 14px 24px; border-radius: var(--radius-md); color: #fff; font-family: var(--font-body); font-size: 0.95rem; width: 300px; transition: all 0.3s; }
+    .search-input:focus { outline: none; border-color: var(--accent-orchid); box-shadow: 0 0 20px rgba(191, 85, 236, 0.2); background: rgba(22, 22, 38, 0.9); }
+
+    .filter-tabs { display: flex; background: rgba(255, 255, 255, 0.03); padding: 6px; border-radius: var(--radius-md); border: 1px solid var(--border-luxe); list-style: none; }
+    .filter-btn { background: transparent; border: none; color: var(--text-muted); padding: 10px 20px; border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; transition: all 0.3s; }
+    .filter-btn.active, .filter-btn:hover { background: var(--accent-amethyst); color: #fff; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3); }
+
+    .games-grid-system { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 40px; }
+    .game-vault-card { background: var(--bg-glass); border: 1px solid var(--border-luxe); border-radius: var(--radius-lg); overflow: hidden; position: relative; transition: all 0.4s var(--ease-luxe); display: flex; flex-direction: column; }
+    .game-vault-card:hover { border-color: rgba(255, 255, 255, 0.2); transform: translateY(-10px); box-shadow: var(--shadow-glow), 0 20px 40px rgba(0, 0, 0, 0.8); }
+
+    .card-media { height: 260px; position: relative; overflow: hidden; }
+    .card-media::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, var(--bg-glass) 0%, transparent 60%); }
+    .card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease-luxe); }
+    .game-vault-card:hover .card-media img { transform: scale(1.08); }
+
+    .card-floating-badge { position: absolute; top: 20px; left: 20px; background: rgba(2, 2, 5, 0.85); backdrop-filter: blur(8px); border: 1px solid var(--border-luxe); padding: 6px 14px; border-radius: 30px; font-size: 0.7rem; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; z-index: 2; }
+    .card-rating { position: absolute; top: 20px; right: 20px; background: rgba(2, 2, 5, 0.85); backdrop-filter: blur(8px); border: 1px solid rgba(255, 183, 3, 0.4); padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; color: var(--accent-gold); font-weight: 700; z-index: 2; }
+    .card-body-luxe { padding: 32px 24px; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end; z-index: 3; margin-top: -40px; }
+    .game-title-luxe { font-size: 1.5rem; margin-bottom: 12px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .game-meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-luxe); padding-top: 16px; }
+    .sys-spec { font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-orchid); background: rgba(191, 85, 236, 0.1); padding: 4px 10px; border-radius: 6px; }
+
+    /* ========================================================================
+       6. REDESIGNED STEAM PACKS - BUILD YOUR OWN PACK ARCHITECTURE
+       ======================================================================== */
+    .packs-section { padding: 120px 0 60px 0; position: relative; }
+    .builder-tier-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-bottom: 40px; }
+    .tier-option-card { background: var(--bg-glass); border: 2px solid var(--border-luxe); border-radius: var(--radius-xl); padding: 32px; display: flex; align-items: center; gap: 20px; cursor: pointer; position: relative; transition: all 0.4s var(--ease-luxe); overflow: hidden; }
+    .tier-option-card:hover { border-color: rgba(255, 255, 255, 0.25); background: var(--bg-glass-hover); transform: translateY(-4px); }
+    .tier-option-card.active { border-color: var(--accent-amethyst); background: linear-gradient(135deg, rgba(13, 13, 22, 0.9), rgba(157, 78, 221, 0.15)); box-shadow: 0 0 35px rgba(157, 78, 221, 0.3); }
+    .tier-option-card.active.tier-2-active { border-color: var(--accent-orchid); background: linear-gradient(135deg, rgba(13, 13, 22, 0.9), rgba(191, 85, 236, 0.18)); box-shadow: 0 0 35px rgba(191, 85, 236, 0.35); }
+
+    .tier-badge-top { position: absolute; top: 18px; right: 20px; background: var(--accent-gold); color: #000; font-family: var(--font-mono); font-size: 0.68rem; font-weight: 700; padding: 4px 12px; border-radius: var(--radius-sm); text-transform: uppercase; box-shadow: 0 4px 12px rgba(255, 183, 3, 0.3); }
+    .tier-radio-indicator { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--text-dim); position: relative; flex-shrink: 0; transition: all 0.3s ease; }
+    .tier-option-card.active .tier-radio-indicator { border-color: var(--accent-orchid); background: var(--accent-orchid); box-shadow: 0 0 12px var(--accent-orchid); }
+    .tier-option-card.active .tier-radio-indicator::after { content: ''; position: absolute; inset: 7px; background: #fff; border-radius: 50%; }
+
+    .tier-info-wrap { flex-grow: 1; }
+    .tier-tag-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent-mint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+    .tier-title-text { font-size: 1.6rem; color: #fff; margin-bottom: 4px; }
+    .tier-subtext-desc { color: var(--text-muted); font-size: 0.9rem; }
+    .tier-price-display { display: flex; align-items: baseline; gap: 6px; text-align: right; }
+    .tier-price-display .price-val { font-family: var(--font-display); font-size: 2.8rem; font-weight: 800; color: #fff; line-height: 1; }
+    .tier-price-display .price-unit { font-size: 1rem; font-weight: 700; color: var(--text-muted); }
+
+    .pack-builder-dashboard { background: var(--bg-surface); border: 1px solid var(--border-luxe); border-radius: var(--radius-xl); padding: 40px; box-shadow: var(--shadow-luxe); }
+    .dashboard-header-block { margin-bottom: 32px; }
+    .pack-summary-status-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 16px; }
+    .active-pack-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; gap: 12px; }
+    
+    .counter-badge-pill { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; padding: 8px 20px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-luxe); border-radius: 30px; color: var(--accent-orchid); transition: all 0.3s ease; }
+    .counter-badge-pill.full { background: rgba(0, 245, 212, 0.15); border-color: var(--accent-mint); color: var(--accent-mint); box-shadow: 0 0 20px rgba(0, 245, 212, 0.3); }
+
+    .progress-bar-track { width: 100%; height: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-luxe); position: relative; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent-amethyst), var(--accent-orchid), var(--accent-mint)); border-radius: 12px; transition: width 0.4s var(--ease-luxe); box-shadow: 0 0 15px var(--accent-orchid); }
+
+    .full-pack-banner { margin-top: 18px; padding: 14px 22px; background: rgba(255, 183, 3, 0.12); border: 1px solid var(--accent-gold); border-radius: var(--radius-md); color: var(--accent-gold); font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 12px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .selected-rack-container { background: rgba(255, 255, 255, 0.02); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 36px; }
+    .rack-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .rack-title-row h4 { font-size: 0.95rem; color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .clear-all-btn { background: transparent; border: none; color: #ef4444; font-size: 0.8rem; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; transition: opacity 0.2s; }
+    .clear-all-btn:hover { opacity: 0.8; }
+    .selected-games-tray { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; min-height: 80px; align-items: center; }
+    .selected-games-tray::-webkit-scrollbar { height: 6px; }
+    .selected-games-tray::-webkit-scrollbar-thumb { background: var(--border-luxe); border-radius: 4px; }
+    
+    .rack-empty-placeholder { width: 100%; text-align: center; color: var(--text-dim); font-family: var(--font-mono); font-size: 0.88rem; padding: 20px 0; }
+    .rack-chip { display: flex; align-items: center; gap: 12px; background: rgba(13, 13, 22, 0.9); border: 1px solid var(--border-active); padding: 6px 14px 6px 6px; border-radius: var(--radius-md); flex-shrink: 0; animation: chipPop 0.3s var(--ease-luxe); }
+    @keyframes chipPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .rack-chip img { width: 44px; height: 44px; object-fit: cover; border-radius: var(--radius-sm); }
+    .rack-chip-title { font-size: 0.85rem; font-weight: 600; color: #fff; max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rack-chip-remove { background: rgba(255, 255, 255, 0.08); border: none; color: var(--text-muted); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+    .rack-chip-remove:hover { background: #ef4444; color: #fff; }
+
+    .builder-search-wrapper { margin-bottom: 28px; }
+    .builder-search-wrapper .search-input { width: 100%; }
+
+    .builder-games-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; max-height: 620px; overflow-y: auto; padding-right: 8px; margin-bottom: 36px; }
+    .builder-games-grid::-webkit-scrollbar { width: 6px; }
+    .builder-games-grid::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+
+    .builder-game-card { background: var(--bg-glass); border: 1px solid var(--border-luxe); border-radius: var(--radius-md); overflow: hidden; display: flex; flex-direction: column; transition: all 0.3s var(--ease-luxe); position: relative; }
+    .builder-game-card:hover { border-color: rgba(255, 255, 255, 0.25); transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6); }
+    .builder-game-card.selected { border-color: var(--accent-orchid); background: linear-gradient(180deg, rgba(13, 13, 22, 0.9), rgba(191, 85, 236, 0.12)); box-shadow: 0 0 25px rgba(191, 85, 236, 0.25); }
+    .builder-card-img-wrap { height: 155px; position: relative; overflow: hidden; }
+    .builder-card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s var(--ease-luxe); }
+    .builder-game-card:hover .builder-card-img-wrap img { transform: scale(1.06); }
+    
+    .builder-card-body { padding: 18px 16px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; gap: 14px; }
+    .builder-card-title { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.35; }
+    .builder-add-btn { width: 100%; padding: 11px 16px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.88rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; border: 1px solid transparent; transition: all 0.3s var(--ease-luxe); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .builder-add-btn.btn-add { background: rgba(157, 78, 221, 0.15); border-color: var(--accent-amethyst); color: #fff; }
+    .builder-add-btn.btn-add:hover:not(:disabled) { background: var(--accent-amethyst); box-shadow: 0 4px 15px rgba(157, 78, 221, 0.4); }
+    .builder-add-btn.btn-selected { background: var(--accent-mint); border-color: var(--accent-mint); color: #020205; font-weight: 800; }
+    .builder-add-btn.btn-selected:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
+    .builder-add-btn:disabled { opacity: 0.38; cursor: not-allowed; border-color: var(--border-luxe); background: rgba(255, 255, 255, 0.02); color: var(--text-dim); }
+
+    .builder-checkout-bar { display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; background: rgba(13, 13, 22, 0.9); border: 1px solid var(--border-luxe); border-radius: var(--radius-lg); flex-wrap: wrap; gap: 20px; }
+    .checkout-summary-col .summary-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 700; color: #fff; }
+    .checkout-summary-col .summary-price { font-family: var(--font-mono); font-size: 1.45rem; font-weight: 700; color: var(--accent-orchid); }
+    .btn-checkout-pack { min-width: 300px; }
+    .btn-checkout-pack:disabled { opacity: 0.4; cursor: not-allowed; background: rgba(255, 255, 255, 0.05); border-color: var(--border-luxe); box-shadow: none; color: var(--text-dim); }
+
+    /* ========================================================================
+       7. TESTIMONIALS & FAQ & FOOTER & MODALS
+       ======================================================================== */
+    .reviews-section { padding: 100px 0; }
+    .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+    .review-card { background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-luxe); padding: 40px; border-radius: var(--radius-xl); transition: transform 0.4s var(--ease-luxe); }
+    .review-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.04); }
+    .review-text { font-style: italic; color: var(--text-main); font-size: 1.05rem; margin-bottom: 32px; line-height: 1.8; }
+    .reviewer { display: flex; align-items: center; gap: 16px; }
+    .rev-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-amethyst), var(--accent-orchid)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3); }
+    .rev-name { font-size: 1rem; font-weight: 700; }
+    .rev-loc { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;}
+
+    .faq-section { padding: 120px 0; }
+    .faq-wrapper { max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+    .faq-node { background: var(--bg-glass); border: 1px solid var(--border-luxe); border-radius: var(--radius-md); overflow: hidden; transition: all 0.3s; }
+    .faq-node:hover { border-color: rgba(255, 255, 255, 0.15); }
+    .faq-node.active { border-color: var(--accent-amethyst); box-shadow: 0 10px 30px rgba(157, 78, 221, 0.1); }
+    .faq-trigger { width: 100%; background: transparent; border: none; padding: 28px 40px; display: flex; justify-content: space-between; align-items: center; color: #fff; font-family: var(--font-body); font-weight: 600; font-size: 1.1rem; text-align: left; cursor: pointer; }
+    .faq-trigger:focus { outline: none; background: rgba(255,255,255,0.03); }
+    .faq-icon-shape { width: 24px; height: 24px; position: relative; transition: transform 0.4s var(--ease-luxe); flex-shrink: 0; }
+    .faq-icon-shape::before, .faq-icon-shape::after { content: ''; position: absolute; background: var(--text-muted); transition: background 0.3s; }
+    .faq-icon-shape::before { top: 11px; left: 2px; width: 20px; height: 2px; border-radius: 2px; }
+    .faq-icon-shape::after { top: 2px; left: 11px; width: 2px; height: 20px; border-radius: 2px; }
+    .faq-node.active .faq-icon-shape { transform: rotate(135deg); }
+    .faq-node.active .faq-icon-shape::before, .faq-node.active .faq-icon-shape::after { background: var(--accent-orchid); }
+    .faq-panel { max-height: 0; overflow: hidden; transition: max-height 0.5s var(--ease-luxe); }
+    .faq-panel-inner { padding: 0 40px 32px 40px; color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; }
+
+    .footer-luxe { background: #030307; border-top: 1px solid var(--border-luxe); padding: 100px 0 40px 0; }
+    .footer-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 60px; margin-bottom: 80px; }
+    .footer-brand p { color: var(--text-muted); margin-top: 20px; font-size: 0.95rem; max-width: 300px; line-height: 1.8; }
+    .footer-col-title { font-size: 0.9rem; color: #fff; margin-bottom: 24px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700;}
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.95rem; transition: color 0.3s; }
+    .footer-links a:hover { color: var(--accent-orchid); }
+    .footer-base { border-top: 1px solid var(--border-luxe); padding-top: 40px; display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--text-dim); flex-wrap: wrap; gap: 20px; }
+    .footer-legal { display: flex; gap: 32px; }
+    .footer-legal a { color: var(--text-dim); text-decoration: none; transition: color 0.3s; }
+    .footer-legal a:hover { color: var(--text-muted); }
+
+    .cart-drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+    .cart-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .cart-drawer { position: fixed; top: 0; right: -450px; width: 100%; max-width: 450px; height: 100%; background: var(--bg-surface); border-left: 1px solid var(--border-active); z-index: 1001; box-shadow: var(--shadow-luxe); display: flex; flex-direction: column; transition: right 0.5s var(--ease-luxe); }
+    .cart-drawer-overlay.open .cart-drawer { right: 0; }
+    .drawer-head { padding: 32px; border-bottom: 1px solid var(--border-luxe); display: flex; justify-content: space-between; align-items: center; }
+    .drawer-head h3 { font-size: 1.3rem; margin: 0; }
+    .close-drawer-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 2rem; line-height: 1; transition: color 0.3s; }
+    .close-drawer-btn:hover { color: #fff; }
+    .drawer-body { padding: 32px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+    .drawer-footer { padding: 32px; border-top: 1px solid var(--border-luxe); background: #05050b; }
+    .summary-line { display: flex; justify-content: space-between; margin-bottom: 24px; font-weight: 600; font-size: 1.1rem; }
+    .summary-total { color: var(--accent-amethyst); font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .auth-shell { background: var(--bg-surface); border: 1px solid var(--border-luxe); border-radius: var(--radius-xl); width: 100%; max-width: 480px; box-shadow: 0 30px 60px rgba(0,0,0,0.8), 0 0 40px rgba(157, 78, 221, 0.15); overflow: hidden; position: relative; transform: translateY(20px); transition: transform 0.4s var(--ease-luxe); }
+    .modal-overlay.open .auth-shell { transform: translateY(0); }
+    .close-modal-x { position: absolute; top: 24px; right: 24px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; line-height: 1; z-index: 10; transition: color 0.3s; }
+    .close-modal-x:hover { color: #fff; }
+
+    .toast-container-luxe { position: fixed; bottom: 40px; left: 40px; z-index: 3000; display: flex; flex-direction: column; gap: 16px; pointer-events: none; }
+    .toast-card-luxe { background: rgba(7, 7, 15, 0.95); border: 1px solid var(--accent-amethyst); backdrop-filter: blur(16px); padding: 20px 24px; border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(157, 78, 221, 0.2); display: flex; align-items: center; gap: 16px; transform: translateY(50px); opacity: 0; animation: toastIn 0.5s var(--ease-luxe) forwards; transition: all 0.5s var(--ease-luxe); }
+    @keyframes toastIn { to { transform: translateY(0); opacity: 1; } }
+
+    /* ========================================================================
+       8. PREMIUM WHATSAPP CHECKOUT MODAL
+       ======================================================================== */
+    .wa-checkout-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(15px);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-luxe);
+      padding: 20px;
+    }
+    .wa-checkout-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .wa-checkout-shell {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-xl);
+      width: 100%;
+      max-width: 900px;
+      max-height: 90vh;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.9), 0 0 50px rgba(157, 78, 221, 0.2);
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      position: relative;
+      transform: translateY(20px) scale(0.98);
+      transition: transform 0.4s var(--ease-luxe);
+    }
+    .wa-checkout-overlay.open .wa-checkout-shell { transform: translateY(0) scale(1); }
+    
+    .wa-close-btn { position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5); border: 1px solid var(--border-luxe); color: var(--text-muted); cursor: pointer; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; z-index: 10; transition: all 0.3s; }
+    .wa-close-btn:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+    .wa-order-summary {
+      flex: 1;
+      background: rgba(13, 13, 22, 0.95);
+      padding: 40px;
+      border-right: 1px solid var(--border-luxe);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .wa-order-summary::-webkit-scrollbar { width: 6px; }
+    .wa-order-summary::-webkit-scrollbar-thumb { background: var(--border-luxe); border-radius: 4px; }
+
+    .wa-summary-header { border-bottom: 1px solid var(--border-luxe); padding-bottom: 20px; margin-bottom: 20px; }
+    .wa-summary-title { font-family: var(--font-display); font-size: 1.8rem; color: #fff; margin-bottom: 8px; text-transform: uppercase; }
+    .wa-summary-price { font-family: var(--font-mono); font-size: 2rem; color: var(--accent-orchid); font-weight: 700; }
+
+    .wa-games-list { display: flex; flex-direction: column; gap: 12px; }
+    .wa-game-item { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05); }
+    .wa-game-item img { width: 50px; height: 50px; object-fit: cover; border-radius: var(--radius-sm); }
+    .wa-game-item-name { flex: 1; font-size: 0.95rem; color: #fff; font-weight: 600; }
+    .wa-game-remove { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; padding: 4px; transition: color 0.2s; font-family: var(--font-body); font-weight: 700;}
+    .wa-game-remove:hover { color: #ef4444; }
+
+    .wa-checkout-form-container {
+      flex: 1;
+      padding: 40px;
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .wa-form-title { font-family: var(--font-display); font-size: 1.5rem; color: #fff; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .form-group-luxe { margin-bottom: 20px; }
+    .form-group-luxe label { display: block; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.08em; }
+    .form-ctrl-luxe { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 12px 16px; border-radius: var(--radius-md); color: #fff; font-family: var(--font-body); font-size: 0.95rem; transition: all 0.3s; }
+    .form-ctrl-luxe:focus { outline: none; border-color: var(--accent-amethyst); box-shadow: 0 0 15px rgba(157, 78, 221, 0.2); background: rgba(0,0,0,0.5); }
+
+    .wa-btn-submit { background: linear-gradient(135deg, #25D366, #128C7E); color: #fff; border: none; width: 100%; box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3); font-size: 1rem; margin-top: 10px; cursor: pointer; }
+    .wa-btn-submit:hover { background: linear-gradient(135deg, #128C7E, #075E54); box-shadow: 0 10px 30px rgba(37, 211, 102, 0.5); border: none; transform: translateY(-3px); }
+    .wa-btn-submit svg { fill: currentColor; }
+
+    @media (max-width: 992px) {
+      .hero-split { grid-template-columns: 1fr; text-align: center; gap: 60px; }
+      .games-grid-system { grid-template-columns: repeat(2, 1fr); }
+      .reviews-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 40px; }
+      .builder-tier-selector { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .menu-toggle { display: flex; }
+      .nav-links {
+        position: fixed; top: 84px; left: 0; width: 100%; background: rgba(2, 2, 5, 0.98); backdrop-filter: blur(20px);
+        flex-direction: column; padding: 40px 5%; border-bottom: 1px solid var(--border-luxe); gap: 24px;
+        transform: translateY(-150%); opacity: 0; pointer-events: none;
+      }
+      .nav-links.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+      .nav-links a { font-size: 1.1rem; }
+      .hero-title { font-size: 3rem; }
+      .games-grid-system { grid-template-columns: 1fr; }
+      .section-head { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .search-input { width: 100%; }
+      .filter-tabs { flex-wrap: wrap; width: 100%; justify-content: center; }
+      .bento-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .toast-container-luxe { left: 20px; right: 20px; bottom: 20px; }
+      .cart-drawer { max-width: 100%; right: -100%; }
+      .pack-builder-dashboard { padding: 20px; }
+      .builder-games-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+      .builder-checkout-bar { flex-direction: column; align-items: stretch; text-align: center; }
+      .btn-checkout-pack { width: 100%; }
+      .wa-checkout-shell { flex-direction: column; max-height: 95vh; overflow-y: auto; }
+      .wa-order-summary { border-right: none; border-bottom: 1px solid var(--border-luxe); padding: 24px; }
+      .wa-checkout-form-container { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="spatial-glow glow-1" aria-hidden="true"></div>
+  <div class="spatial-glow glow-2" aria-hidden="true"></div>
+  <div class="grid-matrix" aria-hidden="true"></div>
+
+  <nav class="navbar" id="app-nav" role="navigation" aria-label="Main system navigational portal">
+    <div class="container">
+      <div class="navbar-inner">
+        <a href="#app-main" class="logo" aria-label="ZEROKeys Global Platform Home">ZEROKeys<span>//</span></a>
+        <ul class="nav-links" role="list" id="mobile-nav-tray">
+          <li><a href="#app-main" onclick="handleMobileNavToggle(true)">Home</a></li>
+          <li><a href="#vault" onclick="handleMobileNavToggle(true)">Games</a></li>
+          <li><a href="#packs" onclick="handleMobileNavToggle(true)">Packs</a></li>
+          <li><a href="#faqs" onclick="handleMobileNavToggle(true)">Support</a></li>
+        </ul>
+        <div class="nav-actions">
+          <button class="cart-trigger" onclick="toggleCartDrawer(true)" aria-label="Open secure checkout tray">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <span class="cart-count" id="global-cart-indicator">0</span>
+          </button>
+          <button class="menu-toggle" id="mobile-hamburger" aria-label="Toggle device menu" aria-expanded="false" aria-controls="mobile-nav-tray" onclick="handleMobileNavToggle(false)">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="app-main">
+    <header class="hero" aria-labelledby="hero-title-text">
+      <div class="container">
+        <div class="hero-split">
+          <div class="hero-content-block">
+            <div class="badge-promo"><span class="badge-dot"></span> 100% Secure & Verified</div>
+            <div class="hero-title" id="hero-title-text">
+              <div class="gradient-text" style="font-size: clamp(2.5rem, 4vw, 4rem); font-weight: 800; margin-bottom: 10px;">🎮 Choose Any 10 Steam Games</div>
+              <div style="color: var(--accent-gold); font-size: clamp(2rem, 3.5vw, 3.5rem); margin-bottom: 10px; font-family: var(--font-display); font-weight: 800;">Only 100 DH</div>
+              <div style="color: #fff; font-size: clamp(1.2rem, 2vw, 2rem); margin-bottom: 10px; font-weight: 700;">⚡ Instant Delivery</div>
+              <div style="color: #fff; font-size: clamp(1.2rem, 2vw, 2rem); font-weight: 700;">🔑 Official Steam Keys</div>
+            </div>
+            <p class="hero-desc">Select your favorite titles and get working Steam keys instantly delivered directly to your email.</p>
+            <div class="hero-ctas">
+              <button class="btn-luxe btn-primary" onclick="scrollToElement('#packs')">Build Your Custom Pack</button>
+              <button class="btn-luxe btn-outline" onclick="scrollToElement('#vault')">Browse Games</button>
+            </div>
+            <div class="trust-index">
+              <div class="stars" aria-label="Rating: 5 out of 5 stars">★★★★★</div>
+              <div class="trust-text">Trusted by over 14,000 happy gamers globally</div>
+            </div>
+          </div>
+          <div class="showcase-display" aria-hidden="true">
+            <div class="showcase-blur-ring"></div>
+            <div class="card-stack card-stack-1"><img src="images/Red_Dead_Redemption_II.jpg" alt="Red Dead Redemption 2"></div>
+            <div class="card-stack card-stack-2"><img src="images/Grand_Theft_Auto_V.png" alt="Grand Theft Auto V"></div>
+            <div class="card-stack card-stack-3"><img src="images/fifa25.avif" alt="EA SPORTS FC 25"></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section class="bento-stats" aria-label="Platform and store statistics">
+      <div class="container">
+        <div class="bento-grid">
+          <div class="bento-cell"><div class="cell-val">14.2K+</div><div class="cell-lbl">Games Delivered</div></div>
+          <div class="bento-cell"><div class="cell-val">99.9%</div><div class="cell-lbl">Working Keys</div></div>
+          <div class="bento-cell"><div class="cell-val">650+</div><div class="cell-lbl">Games Available</div></div>
+          <div class="bento-cell"><div class="cell-val gold">&lt; 2 Min</div><div class="cell-lbl">Instant Delivery</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="vault-section" id="vault" aria-labelledby="vault-heading">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title" id="vault-heading">Active Vault Catalog</h2>
+            <p class="section-subtitle">Browse our complete library of Steam games available for your custom pack.</p>
+          </div>
+          <div class="vault-controls">
+            <input type="text" id="catalog-search" class="search-input" placeholder="Search games..." aria-label="Search game catalog">
+            <ul class="filter-tabs" role="tablist">
+              <li role="presentation"><button class="filter-btn active" onclick="filterCatalogCategory('all', this)" role="tab" aria-selected="true">All Games</button></li>
+              <li role="presentation"><button class="filter-btn" onclick="filterCatalogCategory('action', this)" role="tab" aria-selected="false">Action / FPS</button></li>
+              <li role="presentation"><button class="filter-btn" onclick="filterCatalogCategory('rpg', this)" role="tab" aria-selected="false">RPG / Strategy</button></li>
+              <li role="presentation"><button class="filter-btn" onclick="filterCatalogCategory('openworld', this)" role="tab" aria-selected="false">Open World</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class="games-grid-system" id="vault-injection-grid"></div>
+      </div>
+    </section>
+
+    <section class="packs-section" id="packs" aria-labelledby="packs-heading">
+      <div class="container">
+        <div class="section-head" style="justify-content: center; text-align: center;">
+          <div>
+            <h2 class="section-title" id="packs-heading">Build Your Own Steam Pack</h2>
+            <p class="section-subtitle" style="margin: 0 auto;">Select your pack, pick your favorite Steam games, and start playing.</p>
+          </div>
+        </div>
+
+        <div class="builder-tier-selector">
+          <div class="tier-option-card active" id="tier-card-1" onclick="switchPackTier(1)">
+            <div class="tier-radio-indicator"></div>
+            <div class="tier-info-wrap">
+              <div class="tier-tag-label">Standard Pack</div>
+              <h3 class="tier-title-text">Pack 1: 10 Steam Games</h3>
+              <p class="tier-subtext-desc">Choose any 10 Steam Games for 100 MAD.</p>
+            </div>
+            <div class="tier-price-display"><span class="price-val">100</span><span class="price-unit">MAD</span></div>
+          </div>
+          <div class="tier-option-card" id="tier-card-2" onclick="switchPackTier(2)">
+            <div class="tier-badge-top">Best Value</div>
+            <div class="tier-radio-indicator"></div>
+            <div class="tier-info-wrap">
+              <div class="tier-tag-label" style="color: var(--accent-orchid);">Mega Pack</div>
+              <h3 class="tier-title-text">Pack 2: 25 Steam Games</h3>
+              <p class="tier-subtext-desc">Choose any 25 Steam Games for 189 MAD.</p>
+            </div>
+            <div class="tier-price-display"><span class="price-val" style="color: var(--accent-orchid);">189</span><span class="price-unit">MAD</span></div>
+          </div>
+        </div>
+
+        <div class="pack-builder-dashboard">
+          <div class="dashboard-header-block">
+            <div class="pack-summary-status-row">
+              <div class="active-pack-title" id="builder-pack-title"><span>Pack 1 Selected (10 Games - 100 MAD)</span></div>
+              <div class="counter-badge-pill" id="builder-counter-badge">Selected: 0 / 10</div>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill" id="builder-progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="full-pack-banner" id="builder-full-message" style="display: none;">
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span>Your pack is full! Remove a game from your rack below if you wish to swap titles or proceed directly to checkout.</span>
+            </div>
+          </div>
+
+          <div class="selected-rack-container">
+            <div class="rack-title-row">
+              <h4>Your Pack Selection (<span id="rack-count">0</span>/<span id="rack-max">10</span>)</h4>
+              <button class="clear-all-btn" id="clear-rack-btn" style="display: none;" onclick="clearSelectedPackGames()">Clear Selection</button>
+            </div>
+            <div class="selected-games-tray" id="selected-games-tray">
+              <div class="rack-empty-placeholder">No games added yet.</div>
+            </div>
+          </div>
+
+          <div class="builder-search-wrapper">
+            <input type="text" id="builder-search-input" class="search-input" placeholder="Search titles to add to your pack..." oninput="renderPackGamesGrid()" aria-label="Search games for custom pack">
+          </div>
+          <div class="builder-games-grid" id="builder-games-grid"></div>
+
+          <div class="builder-checkout-bar">
+            <div class="checkout-summary-col">
+              <div class="summary-title" id="checkout-summary-title">Pack 1: Custom 10 Games</div>
+              <div class="summary-price" id="checkout-summary-price">100.00 MAD</div>
+            </div>
+            <button class="btn-luxe btn-primary btn-checkout-pack" id="checkout-pack-btn" disabled onclick="checkoutCustomPack()">
+              Select 10 Games to Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="reviews-section" aria-label="Customer feedback reviews">
+      <div class="container">
+        <div class="reviews-grid">
+          <div class="review-card">
+            <div class="stars" style="margin-bottom:16px;">★★★★★</div>
+            <p class="review-text">"Saraha chrit Pack 1. Service nadya akhoya bigup lik abro"</p>
+            <div class="reviewer"><div class="rev-avatar">AM</div><div><div class="rev-name">Anas M.</div><div class="rev-loc">Rabat</div></div></div>
+          </div>
+          <div class="review-card">
+            <div class="stars" style="margin-bottom:16px;">★★★★★</div>
+            <p class="review-text">"ثمن ماكاينش بحالو! خديت 25 لعبة بـ 189 درهم،العملية كاملة ماخداتش حتى خمسة دقايق، وكلشي داز بسهولة. 🔥"</p>
+            <div class="reviewer"><div class="rev-avatar">YF</div><div><div class="rev-name">Yasmine F.</div><div class="rev-loc">Tangier</div></div></div>
+          </div>
+          <div class="review-card">
+            <div class="stars" style="margin-bottom:16px;">★★★★★</div>
+            <p class="review-text">"First time buying from here and I'm amazed. Very easy to pick the games I wanted, and the instant delivery is a lifesaver."</p>
+            <div class="reviewer"><div class="rev-avatar">ZB</div><div><div class="rev-name">Zaid B.</div><div class="rev-loc">Casablanca</div></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq-section" id="faqs" aria-labelledby="faqs-heading">
+      <div class="container">
+        <div class="section-head" style="text-align: center; justify-content: center;">
+          <div>
+            <h2 class="section-title" id="faqs-heading">Frequently Asked Questions</h2>
+            <p class="section-subtitle" style="margin: 0 auto;">Everything you need to know about buying our custom game packs.</p>
+          </div>
+        </div>
+        <div class="faq-wrapper" role="presentation">
+          <div class="faq-node">
+            <button class="faq-trigger" onclick="toggleFaqIndex(this)" aria-expanded="false">
+              How will I receive my games?
+              <span class="faq-icon-shape" aria-hidden="true"></span>
+            </button>
+            <div class="faq-panel" role="region"><div class="faq-panel-inner">Once your order is confirmed, your official Steam keys will be instantly sent to your email and displayed securely on your screen for immediate activation.</div></div>
+          </div>
+          <div class="faq-node">
+            <button class="faq-trigger" onclick="toggleFaqIndex(this)" aria-expanded="false">
+              Are the game keys global and region-free?
+              <span class="faq-icon-shape" aria-hidden="true"></span>
+            </button>
+            <div class="faq-panel" role="region"><div class="faq-panel-inner">Yes! All our Steam keys are global and region-free, meaning you can activate and play them from anywhere in the world without restrictions.</div></div>
+          </div>
+          <div class="faq-node">
+            <button class="faq-trigger" onclick="toggleFaqIndex(this)" aria-expanded="false">
+              What happens if a key doesn't work?
+              <span class="faq-icon-shape" aria-hidden="true"></span>
+            </button>
+            <div class="faq-panel" role="region"><div class="faq-panel-inner">In the very rare event that a key is invalid or doesn't work, our 24/7 support team will instantly verify and replace it for you within 24 hours. We guarantee 100% working keys.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-luxe" role="contentinfo">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><div class="logo">ZEROKeys<span>//</span></div><p>Your premium destination for instant, official Steam game keys at unbeatable prices.</p></div>
+        <div><h4 class="footer-col-title">Store</h4><ul class="footer-links"><li><a href="#vault">Browse Games</a></li><li><a href="#packs">Build Your Pack</a></li><li><a href="#faqs">Support Hub</a></li></ul></div>
+        <div><h4 class="footer-col-title">Security</h4><ul class="footer-links"><li><a href="javascript:void(0);">Secure Payments</a></li><li><a href="javascript:void(0);">Instant Delivery</a></li><li><a href="javascript:void(0);">Working Key Guarantee</a></li></ul></div>
+        <div><h4 class="footer-col-title">Support</h4><ul class="footer-links"><li><a href="javascript:void(0);">Contact Us</a></li><li><a href="javascript:void(0);">Refund Policy</a></li><li><a href="javascript:void(0);">Activation Guide</a></li></ul></div>
+      </div>
+      <div class="footer-base">
+        <div>&copy; 2026 ZEROKeys Platform. All Rights Reserved.</div>
+        <div class="footer-legal"><a href="javascript:void(0);">Privacy Policy</a><a href="javascript:void(0);">Terms & Conditions</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WHATSAPP CHECKOUT MODAL INJECTION -->
+  <div class="wa-checkout-overlay" id="wa-checkout-modal" onclick="if(event.target===this) closeWhatsappCheckoutModal()">
+    <div class="wa-checkout-shell">
+      <button class="wa-close-btn" onclick="closeWhatsappCheckoutModal()" aria-label="Close Checkout">&times;</button>
+      
+      <div class="wa-order-summary">
+        <div class="wa-summary-header">
+          <h3 class="wa-summary-title" id="wa-modal-pack-name">Pack 1 (10 Games)</h3>
+          <div class="wa-summary-price" id="wa-modal-price">100 MAD</div>
+          <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 12px;">Total Selected: <span id="wa-modal-count" style="color: #fff; font-weight: 700; font-family: var(--font-mono);">10/10</span></div>
+        </div>
+        <div class="wa-games-list" id="wa-modal-games-list">
+          <!-- Injected via JS -->
+        </div>
+      </div>
+
+      <div class="wa-checkout-form-container">
+        <h3 class="wa-form-title">Customer Details</h3>
+        <form id="wa-checkout-form" onsubmit="processWhatsappOrder(event)">
+          <div class="form-group-luxe">
+            <label for="wa-name">Full Name <span style="color: #ef4444;">*</span></label>
+            <input type="text" id="wa-name" class="form-ctrl-luxe" required placeholder="John Doe">
+          </div>
+          <div class="form-group-luxe">
+            <label for="wa-phone">WhatsApp Number <span style="color: #ef4444;">*</span></label>
+            <input type="tel" id="wa-phone" class="form-ctrl-luxe" required placeholder="+212 6XXXXXXXX">
+          </div>
+          <div class="form-group-luxe">
+            <label for="wa-notes">Additional Notes (Optional)</label>
+            <textarea id="wa-notes" class="form-ctrl-luxe" rows="3" placeholder="Any special requests?"></textarea>
+          </div>
+          <button type="submit" class="btn-luxe wa-btn-submit">
+            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.086 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Continue via WhatsApp
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container-luxe" id="realtime-toast-injection-track" aria-live="polite"></div>
+
+  <script>
+    /* ========================================================================
+       A. CATALOG COMPREHENSIVE REGISTRY DATA MODEL DATASET
+       ======================================================================== */
+    const VAULT_CATALOG_REGISTRY_COLLECTION = [
+      { id: 'cp2077', name: 'Cyberpunk 2077 // Phantom Edition', cat: 'action', tags: 'AAA Blast', rate: '9.8', platform: 'Steam / PC', img: 'banners/cyberpunk_banner.jpg' },
+      { id: 'bg3', name: 'EA SPORTS FC 25', cat: 'rpg', tags: 'Sports', rate: '9.6', platform: 'Steam / PC', img: 'banners/fifa25_banner.avif' },
+      { id: 'rdr2', name: 'Red Dead Redemption 2', cat: 'openworld', tags: 'Open World', rate: '9.7', platform: 'Steam / PC', img: 'banners/rdr2_banner.jpg' },
+      { id: 'elden', name: 'Grand Theft Auto V', cat: 'rpg', tags: 'Open World', rate: '9.9', platform: 'Steam / PC', img: 'banners/gta5_banner.jpg' },
+      { id: 'gta6', name: 'Forza Horizon 5', cat: 'openworld', tags: 'Racing', rate: '9.5', platform: 'Steam / PC', img: 'banners/forza5_banner.jpg' },
+      { id: 'mw3', name: "Assassin's Creed IV Black Flag", cat: 'action', tags: 'Adventure', rate: '9.2', platform: 'Steam / PC', img: 'banners/assassins_creed_banner.jpg' }
+    ];
+
+    /* ========================================================================
+       B. BUILD YOUR OWN PACK DATABASE & STATE ENGINE
+       ======================================================================== */
+    const STEAM_PACK_GAMES_DATABASE = [
+      { id: 'sp1', name: 'Cyberpunk 2077', img: 'banners/cyberpunk_banner.jpg' },
+      { id: 'sp2', name: 'EA SPORTS FC 25', img: 'banners/fifa25_banner.avif' },
+      { id: 'sp3', name: 'Red Dead Redemption 2', img: 'banners/rdr2_banner.jpg' },
+      { id: 'sp4', name: 'Grand Theft Auto V', img: 'banners/gta5_banner.jpg' },
+      { id: 'sp5', name: 'Forza Horizon 5', img: 'banners/forza5_banner.jpg' },
+      { id: 'sp6', name: "Assassin's Creed IV Black Flag", img: 'banners/assassins_creed_banner.jpg' },
+      { id: 'sp7', name: 'Elden Ring', img: 'banners/elden_banner.jpg' },
+      { id: 'sp8', name: 'God of War Ragnarök', img: 'banners/god-of-war-raganok_banner.webp' },
+      { id: 'sp9', name: 'Black Myth: Wukong', img: 'banners/wukong_banner.jpg' },
+      { id: 'sp10', name: 'Call of Duty: Modern Warfare III', img: 'banners/callOfDuty-Modern-Warfare III_banner.jpg' },
+      { id: 'sp11', name: "Baldur's Gate 3", img: 'banners/baldur_banner.jpg' },
+      { id: 'sp12', name: "Clair Obscur: Expedition 33", img: 'banners/expedition_banner.jpg' },
+      { id: 'sp13', name: 'Hogwarts Legacy', img: 'banners/hogwarts_banner.jpg' },
+      { id: 'sp14', name: "Marvel's Spider-Man Remastered", img: 'banners/spiderman_banner.avif' },
+      { id: 'sp15', name: "Marvel's Spider-Man 2", img: 'banners/spiderman2_banner.avif' },
+      { id: 'sp16', name: 'God of War', img: 'banners/godofwar_banner.jpg' },
+      { id: 'sp17', name: "Ghost of Tsushima Director's Cut", img: 'banners/ghostOfTsishima_banner.jpg' },
+      { id: 'sp18', name: 'The Last of Us Part I', img: 'banners/theLastOfUs_banner.avif' },
+      { id: 'sp19', name: "S.T.A.L.K.E.R. 2: Heart of Chornobyl", img: 'banners/stalker2_banner.jpg' },
+      { id: 'sp20', name: 'Kingdom Come: Deliverance II', img: 'banners/kingdom-come-deliverance_banner.jpg' },
+      { id: 'sp21', name: "Assassin's Creed Shadows", img: 'banners/AssassinsCreedShadows_banner.jpg' },
+      { id: 'sp22', name: 'Street Fighter 6', img: 'banners/street-fighter-6-banner.jpg' },
+      { id: 'sp23', name: 'Call of Duty: Black Ops 7', img: 'banners/blackOps7_banner.jpg' },
+      { id: 'sp24', name: 'Call of Duty: Modern Warfare III', img: 'banners/callOfDuty-Modern-Warfare III_banner.jpg' },
+      { id: 'sp25', name: 'Battlefield 2042', img: 'banners/battlefield 2042 banner.jpg' },
+      { id: 'sp26', name: 'Mortal Kombat 1', img: 'banners/mortal kombat banner.webp' },
+      { id: 'sp27', name: 'NBA 2K25', img: 'banners/nba 2k25 banner.jpg' },
+      { id: 'sp28', name: 'Need for Speed Unbound', img: 'banners/need for speed unbound banner.jpg' },
+      { id: 'sp29', name: 'Far Cry 6', img: 'banners/far cry 6 banner.avif' },
+      { id: 'sp30', name: 'Rust', img: 'banners/rust banner.avif' }
+    ];
+
+    let CURRENT_PACK_TIER = 1;
+    let SELECTED_PACK_GAMES_ARRAY = [];
+    let SYSTEM_ACTIVE_CATALOG_FILTER_STATE = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderVaultCatalogRegistryGrid();
+      renderPackGamesGrid();
+      updatePackBuilderUI();
+      setupApplicationEventTriggers();
+    });
+
+    function setupApplicationEventTriggers() {
+      const navDomElement = document.getElementById('app-nav');
+      window.addEventListener('scroll', () => {
+        navDomElement.classList.toggle('scrolled', window.scrollY > 30);
+      }, { passive: true });
+
+      const searchInputField = document.getElementById('catalog-search');
+      if (searchInputField) {
+        searchInputField.addEventListener('input', (event) => {
+          renderVaultCatalogRegistryGrid(event.target.value);
+        });
+      }
+    }
+
+    function renderVaultCatalogRegistryGrid(searchQueryToken = '') {
+      const containerInjectionSlot = document.getElementById('vault-injection-grid');
+      containerInjectionSlot.innerHTML = '';
+      const standardizedSearchToken = searchQueryToken.toLowerCase().trim();
+      const filteredRegistryCollectionOutput = VAULT_CATALOG_REGISTRY_COLLECTION.filter(item => {
+        const structuralCategoryMatch = (SYSTEM_ACTIVE_CATALOG_FILTER_STATE === 'all' || item.cat === SYSTEM_ACTIVE_CATALOG_FILTER_STATE);
+        const textualSearchMatch = item.name.toLowerCase().includes(standardizedSearchToken) || (item.tags && item.tags.toLowerCase().includes(standardizedSearchToken));
+        return structuralCategoryMatch && textualSearchMatch;
+      });
+
+      if (filteredRegistryCollectionOutput.length === 0) {
+        containerInjectionSlot.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 80px 20px; color: var(--text-dim); font-family: var(--font-mono); font-size: 1.1rem;">No games found matching your search.</div>`;
+        return;
+      }
+
+      filteredRegistryCollectionOutput.forEach(item => {
+        const individualCardMarkupStructure = `
+          <article class="game-vault-card" role="listitem">
+            <div class="card-media">
+              <img src="${item.img}" alt="${item.name} Cover Art" loading="lazy">
+              <span class="card-floating-badge">${item.tags}</span>
+              <span class="card-rating">★ ${item.rate}</span>
+            </div>
+            <div class="card-body-luxe">
+              <h3 class="game-title-luxe">${item.name}</h3>
+              <div class="game-meta-row"><span class="sys-spec">${item.platform}</span><span>In Stock</span></div>
+            </div>
+          </article>
+        `;
+        containerInjectionSlot.insertAdjacentHTML('beforeend', individualCardMarkupStructure);
+      });
+    }
+
+    function filterCatalogCategory(targetCategoryString, componentTriggerContext) {
+      SYSTEM_ACTIVE_CATALOG_FILTER_STATE = targetCategoryString;
+      const tabGroupCollection = componentTriggerContext.closest('.filter-tabs').querySelectorAll('.filter-btn');
+      tabGroupCollection.forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+      });
+      componentTriggerContext.classList.add('active');
+      componentTriggerContext.setAttribute('aria-selected', 'true');
+      renderVaultCatalogRegistryGrid(document.getElementById('catalog-search').value);
+    }
+
+    function getTierConfig() {
+      if (CURRENT_PACK_TIER === 2) {
+        return { max: 25, price: 189, name: 'Pack 2: 25 Steam Games' };
+      }
+      return { max: 10, price: 100, name: 'Pack 1: 10 Steam Games' };
+    }
+
+    function switchPackTier(tierNumber) {
+      CURRENT_PACK_TIER = tierNumber;
+      const config = getTierConfig();
+      const card1 = document.getElementById('tier-card-1');
+      const card2 = document.getElementById('tier-card-2');
+
+      if (tierNumber === 1) {
+        card1.classList.add('active');
+        card2.classList.remove('active', 'tier-2-active');
+      } else {
+        card2.classList.add('active', 'tier-2-active');
+        card1.classList.remove('active');
+      }
+
+      if (SELECTED_PACK_GAMES_ARRAY.length > config.max) {
+        SELECTED_PACK_GAMES_ARRAY = SELECTED_PACK_GAMES_ARRAY.slice(0, config.max);
+        pushNotificationToastSystemMessage(`Selection updated to match ${config.name} capacity (${config.max} games).`);
+      }
+
+      updatePackBuilderUI();
+      renderPackGamesGrid();
+    }
+
+    function toggleGameInPack(gameId) {
+      const config = getTierConfig();
+      const existingIndex = SELECTED_PACK_GAMES_ARRAY.findIndex(item => item.id === gameId);
+
+      if (existingIndex >= 0) {
+        const removedItem = SELECTED_PACK_GAMES_ARRAY.splice(existingIndex, 1)[0];
+        pushNotificationToastSystemMessage(`Removed "${removedItem.name}" from your pack.`);
+      } else {
+        if (SELECTED_PACK_GAMES_ARRAY.length >= config.max) {
+          pushNotificationToastSystemMessage(`⚠️ Pack is full! You can only select up to ${config.max} games for ${config.name}.`);
+          return;
+        }
+        const gameObj = STEAM_PACK_GAMES_DATABASE.find(item => item.id === gameId);
+        if (gameObj) {
+          SELECTED_PACK_GAMES_ARRAY.push(gameObj);
+          pushNotificationToastSystemMessage(`Added "${gameObj.name}" to your pack!`);
+        }
+      }
+
+      updatePackBuilderUI();
+      renderPackGamesGrid();
+    }
+
+    function removeGameFromPack(gameId) {
+      toggleGameInPack(gameId);
+    }
+
+    function clearSelectedPackGames() {
+      SELECTED_PACK_GAMES_ARRAY = [];
+      pushNotificationToastSystemMessage('Cleared all selected games from custom pack.');
+      updatePackBuilderUI();
+      renderPackGamesGrid();
+    }
+
+    function renderPackGamesGrid() {
+      const gridContainer = document.getElementById('builder-games-grid');
+      const searchQuery = (document.getElementById('builder-search-input')?.value || '').toLowerCase().trim();
+      const config = getTierConfig();
+      const isFull = SELECTED_PACK_GAMES_ARRAY.length >= config.max;
+
+      gridContainer.innerHTML = '';
+      const filtered = STEAM_PACK_GAMES_DATABASE.filter(g => g.name.toLowerCase().includes(searchQuery));
+
+      if (filtered.length === 0) {
+        gridContainer.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-dim); font-family: var(--font-mono);">No Steam titles found matching "${searchQuery}".</div>`;
+        return;
+      }
+
+      filtered.forEach(game => {
+        const isSelected = SELECTED_PACK_GAMES_ARRAY.some(item => item.id === game.id);
+        const cardClass = isSelected ? 'builder-game-card selected' : 'builder-game-card';
+        
+        let buttonMarkup = '';
+        if (isSelected) {
+          buttonMarkup = `
+            <button class="builder-add-btn btn-selected" onclick="toggleGameInPack('${game.id}')" title="Click to remove from pack">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+              <span>Added</span>
+            </button>
+          `;
+        } else {
+          const disabledAttr = isFull ? 'disabled' : '';
+          const btnText = isFull ? 'Pack Full' : '+ Add to Pack';
+          buttonMarkup = `
+            <button class="builder-add-btn btn-add" ${disabledAttr} onclick="toggleGameInPack('${game.id}')">
+              <span>${btnText}</span>
+            </button>
+          `;
+        }
+
+        const html = `
+          <div class="${cardClass}">
+            <div class="builder-card-img-wrap"><img src="${game.img}" alt="${game.name}" loading="lazy"></div>
+            <div class="builder-card-body">
+              <div class="builder-card-title">${game.name}</div>
+              ${buttonMarkup}
+            </div>
+          </div>
+        `;
+        gridContainer.insertAdjacentHTML('beforeend', html);
+      });
+    }
+
+    function updatePackBuilderUI() {
+      const config = getTierConfig();
+      const count = SELECTED_PACK_GAMES_ARRAY.length;
+      const progressPercent = (count / config.max) * 100;
+      
+      document.getElementById('builder-pack-title').innerHTML = `<span>${config.name} (${config.price} MAD)</span>`;
+      document.getElementById('builder-counter-badge').innerText = `Selected: ${count} / ${config.max}`;
+      document.getElementById('rack-count').innerText = count;
+      document.getElementById('rack-max').innerText = config.max;
+      document.getElementById('builder-progress-fill').style.width = `${progressPercent}%`;
+      
+      if (count === config.max) {
+        document.getElementById('builder-counter-badge').classList.add('full');
+        document.getElementById('builder-full-message').style.display = 'flex';
+        document.getElementById('checkout-pack-btn').disabled = false;
+        document.getElementById('checkout-pack-btn').innerHTML = `Checkout ${config.price} MAD Pack`;
+      } else {
+        document.getElementById('builder-counter-badge').classList.remove('full');
+        document.getElementById('builder-full-message').style.display = 'none';
+        document.getElementById('checkout-pack-btn').disabled = true;
+        document.getElementById('checkout-pack-btn').innerHTML = `Select ${config.max} Games to Checkout`;
+      }
+
+      document.getElementById('checkout-summary-title').innerText = config.name;
+      document.getElementById('checkout-summary-price').innerText = `${config.price}.00 MAD`;
+
+      const tray = document.getElementById('selected-games-tray');
+      const clearBtn = document.getElementById('clear-rack-btn');
+      tray.innerHTML = '';
+      
+      if (count === 0) {
+        clearBtn.style.display = 'none';
+        tray.innerHTML = `<div class="rack-empty-placeholder">No games added yet.</div>`;
+      } else {
+        clearBtn.style.display = 'block';
+        SELECTED_PACK_GAMES_ARRAY.forEach(game => {
+          tray.insertAdjacentHTML('beforeend', `
+            <div class="rack-chip">
+              <img src="${game.img}" alt="${game.name}">
+              <div class="rack-chip-title" title="${game.name}">${game.name}</div>
+              <button class="rack-chip-remove" onclick="removeGameFromPack('${game.id}')" title="Remove game">&times;</button>
+            </div>
+          `);
+        });
+      }
+    }
+
+    function checkoutCustomPack() {
+      const config = getTierConfig();
+      if (SELECTED_PACK_GAMES_ARRAY.length !== config.max) {
+        pushNotificationToastSystemMessage(`⚠️ Please select exactly ${config.max} games before checking out.`);
+        return;
+      }
+      openWhatsappCheckoutModal();
+    }
+
+    function openWhatsappCheckoutModal() {
+      const config = getTierConfig();
+      document.getElementById('wa-modal-pack-name').innerText = config.name;
+      document.getElementById('wa-modal-price').innerText = `${config.price} MAD`;
+      document.getElementById('wa-modal-count').innerText = `${SELECTED_PACK_GAMES_ARRAY.length}/${config.max}`;
+      
+      renderCheckoutModalGames();
+      document.getElementById('wa-checkout-modal').classList.add('open');
+    }
+
+    function closeWhatsappCheckoutModal() {
+      document.getElementById('wa-checkout-modal').classList.remove('open');
+    }
+
+    function renderCheckoutModalGames() {
+      const listContainer = document.getElementById('wa-modal-games-list');
+      listContainer.innerHTML = '';
+      
+      SELECTED_PACK_GAMES_ARRAY.forEach(game => {
+        listContainer.insertAdjacentHTML('beforeend', `
+          <div class="wa-game-item" id="wa-game-${game.id}">
+            <img src="${game.img}" alt="${game.name}">
+            <div class="wa-game-item-name">${game.name}</div>
+            <button type="button" class="wa-game-remove" onclick="removeGameFromCheckoutModal('${game.id}')" title="Remove game">✕</button>
+          </div>
+        `);
+      });
+    }
+
+    function removeGameFromCheckoutModal(gameId) {
+      removeGameFromPack(gameId);
+      const config = getTierConfig();
+      
+      document.getElementById('wa-modal-count').innerText = `${SELECTED_PACK_GAMES_ARRAY.length}/${config.max}`;
+      const el = document.getElementById(`wa-game-${gameId}`);
+      if (el) el.remove();
+
+      if (SELECTED_PACK_GAMES_ARRAY.length < config.max) {
+        closeWhatsappCheckoutModal();
+        pushNotificationToastSystemMessage(`⚠️ Pack incomplete. Please select ${config.max - SELECTED_PACK_GAMES_ARRAY.length} more game(s).`);
+      }
+    }
+
+    function processWhatsappOrder(e) {
+      e.preventDefault();
+      const config = getTierConfig();
+      if (SELECTED_PACK_GAMES_ARRAY.length !== config.max) {
+        pushNotificationToastSystemMessage(`⚠️ Please select exactly ${config.max} games.`);
+        return;
+      }
+      
+      const name = document.getElementById('wa-name').value.trim();
+      const phoneInput = document.getElementById('wa-phone');
+      const phone = phoneInput ? phoneInput.value.trim() : 'Not provided';
+      const notes = document.getElementById('wa-notes').value.trim() || 'None';
+      
+      let message = `🎮 *Steam Games Pack Order*\n`;
+      message += `*Package:* ${config.name} (${config.price} MAD)\n\n`;
+      message += `*Selected Games:*\n`;
+      
+      SELECTED_PACK_GAMES_ARRAY.forEach((game, index) => {
+        message += `${index + 1}. ${game.name}\n`;
+      });
+      
+      message += `\n*Total Games:* ${config.max}\n`;
+      message += `*Total Price:* ${config.price} MAD\n\n`;
+      message += `*Customer Name:* ${name}\n`;
+      message += `*WhatsApp Number:* ${phone}\n`;
+      message += `*Additional Notes:* ${notes}\n\n`;
+      message += `Thank you.`;
+
+      const encodedMessage = encodeURIComponent(message);
+      const vendorWhatsApp = "212681387008"; 
+      const whatsappUrl = `https://wa.me/${vendorWhatsApp}?text=${encodedMessage}`;
+      
+      window.location.href = whatsappUrl;
+    }
+
+    function pushNotificationToastSystemMessage(msg) {
+      const container = document.getElementById('realtime-toast-injection-track');
+      const id = 'toast-' + Date.now();
+      container.insertAdjacentHTML('beforeend', `
+        <div class="toast-card-luxe" id="${id}">
+          <svg width="24" height="24" fill="none" stroke="var(--accent-mint)" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          <span style="color:#fff; font-size:0.95rem; font-weight:500;">${msg}</span>
+        </div>
+      `);
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(50px)';
+          setTimeout(() => el.remove(), 500);
+        }
+      }, 4000);
+    }
+
+    function scrollToElement(selector) {
+      const el = document.querySelector(selector);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function handleMobileNavToggle(closeOnly = false) {
+      const nav = document.getElementById('mobile-nav-tray');
+      const hamburger = document.getElementById('mobile-hamburger');
+      if (closeOnly) {
+        nav.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+      } else {
+        const isOpen = nav.classList.toggle('active');
+        hamburger.setAttribute('aria-expanded', isOpen);
+      }
+    }
+  </script>
+</body>
+</html>
