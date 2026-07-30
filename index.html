@@ -724,7 +724,7 @@
               <button class="clear-all-btn" id="clear-rack-btn" style="display: none;" onclick="clearSelectedPackGames()">Clear Rack</button>
             </div>
             <div class="selected-games-tray" id="selected-games-tray">
-              <div class="rack-empty-placeholder">No games added yet. Click "+ Add to Pack" on any title below to build your custom pack.</div>
+              <div class="rack-empty-placeholder">No games added yet.</div>
             </div>
           </div>
 
@@ -1184,7 +1184,7 @@
       
       if (count === 0) {
         clearBtn.style.display = 'none';
-        tray.innerHTML = `<div class="rack-empty-placeholder">No games added yet. Click "+ Add to Pack" on any title below to build your custom pack.</div>`;
+        tray.innerHTML = `<div class="rack-empty-placeholder">No games added yet.</div>`;
       } else {
         clearBtn.style.display = 'block';
         SELECTED_PACK_GAMES_ARRAY.forEach(game => {
